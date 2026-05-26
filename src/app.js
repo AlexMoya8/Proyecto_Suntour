@@ -2,14 +2,26 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { execFile } = require('child_process');
 const querystring = require('querystring');
+const mysql = require('mysql2/promise');
 
 const PORT = process.env.PORT || 3000;
-const DB_NAME = process.env.DB_NAME || 'turismo';
-const DB_USER = process.env.DB_USER || 'root';
-const DB_PASS = process.env.DB_PASS || '';
-const MYSQL_BIN = process.env.MYSQL_BIN || 'C:\\xampp\\mysql\\bin\\mysql.exe';
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'suntour-suntour22.a.aivencloud.com',
+  port: Number(process.env.DB_PORT || 18242),
+  user: process.env.DB_USER || 'avnadmin',
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || 'turismo',
+  waitForConnections: true,
+  connectionLimit: 10,
+  charset: 'utf8mb4',
+  dateStrings: true,
+  rowsAsArray: true,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 const sessions = new Map();
 
@@ -24,40 +36,24 @@ const ROLE_CONFIG = {
 /* =========================
    MYSQL
 ========================= */
+async function q(sql) {
+  const [result] = await pool.query(sql);
 
-function mysqlArgs(sql) {
-  const args = [
-    '-u',
-    DB_USER,
-    `--database=${DB_NAME}`,
-    '--default-character-set=utf8mb4',
-    '--batch',
-    '--raw',
-    '--skip-column-names',
-    '-e',
-    sql
-  ];
+  if (!Array.isArray(result)) {
+    return '';
+  }
 
-  if (DB_PASS) args.splice(2, 0, `-p${DB_PASS}`);
-  return args;
-}
+  if (result.length === 0) {
+    return '';
+  }
 
-function q(sql) {
-  return new Promise((resolve, reject) => {
-    execFile(
-      MYSQL_BIN,
-      mysqlArgs(sql),
-      {
-        windowsHide: true,
-        maxBuffer: 1024 * 1024 * 10,
-        encoding: 'utf8'
-      },
-      (err, stdout, stderr) => {
-        if (err) return reject(new Error((stderr || err.message).trim()));
-        resolve(stdout.trim());
-      }
-    );
+  const lines = result.map(row => {
+    return row
+      .map(value => value ?? '')
+      .join('\t');
   });
+
+  return lines.join('\n');
 }
 
 function esc(v) {

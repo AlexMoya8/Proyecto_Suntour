@@ -10,6 +10,7 @@
   "author": "SunTour Chocó",
   "license": "MIT",
   "dependencies": {
-    "chart.js": "^4.5.1"
+    "chart.js": "^4.5.1",
+    "mysql2": "^3.22.4"
   }
 }
