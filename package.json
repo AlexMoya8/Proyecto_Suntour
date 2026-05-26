@@ -1,0 +1,15 @@
+{
+  "name": "suntour-nuevo-node",
+  "version": "1.0.0",
+  "description": "SunTour Chocó - proyecto nuevo en Node.js sin dependencias externas",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js"
+  },
+  "author": "SunTour Chocó",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^4.5.1"
+  }
+}
