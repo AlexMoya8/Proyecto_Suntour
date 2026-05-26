@@ -1794,19 +1794,17 @@ function setupError(req, res, e) {
     500
   );
 }
-
 function getPublicDir() {
-  const rootPublic = path.join(__dirname, 'public');
-  const parentPublic = path.join(__dirname, '..', 'public');
-
-  if (fs.existsSync(rootPublic)) return rootPublic;
-  return parentPublic;
+  return path.join(__dirname, '..', 'public');
 }
 
 function serveStatic(req, res) {
   const safe = decodeURIComponent(req.url.split('?')[0]).replace(/\.\./g, '');
   const publicDir = getPublicDir();
   const file = path.join(publicDir, safe);
+
+  console.log('Archivo solicitado:', req.url);
+  console.log('Buscando en:', file);
 
   if (!file.startsWith(publicDir)) return false;
 
@@ -1829,9 +1827,9 @@ function serveStatic(req, res) {
     return true;
   }
 
+  console.log('No encontrado:', file);
   return false;
 }
-
 /* =========================
    ROUTER
 ========================= */
@@ -1911,5 +1909,5 @@ async function router(req, res) {
 }
 
 http.createServer(router).listen(PORT, () => {
-  console.log(`SunTour Chocó listo en http://localhost:${PORT}`);
+  console.log(`SunTour Chocó listo en el puerto:${PORT}`);
 });
